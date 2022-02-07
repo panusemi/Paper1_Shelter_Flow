@@ -1,0 +1,203 @@
+---
+title: "Shelter System Flow has Insight on how Different Communities are Affected*" 
+author: "Emily Panus, 1006142915"
+date: "06/02/2022"
+output: pdf_document
+abstract: "Measuring shelter flow is an efficient way for Toronto to assess the functionality of the system to then assist in improving and reducing its numbers in the future. The shelter flow is calculated on a monthly basis to calculate the people entering, returning, and leaving in all different population groups and ages that we graphed to evaluate the recent homeless situation in Toronto.  It is clear to see that the majority of people experiencing homelessness are of gender male and aged from 24 to 44, active homelessness increases in winter months and the inflow and outflow of people in shelters have similar movement throughout the months. These findings show that recently, notably the devastating increase in homeless during Covid-19, there are many vulnerable people out on the streets, which can use benefit from government, financial and shelter services assistance."
+bibliography: bibliography.bib
+---
+^[* Code and data are available at: https://github.com/panusemi/Shelter-System-Flow.git]
+
+\tableofcontents
+
+\newpage
+
+```{r, include=FALSE}
+library(opendatatoronto)
+library(tidyverse)
+library(janitor)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r, echo=FALSE}
+package <- show_package("ac77f532-f18b-427c-905c-4ae87ce69c93")
+
+ 
+resources <- list_package_resources("ac77f532-f18b-427c-905c-4ae87ce69c93")
+ 
+datastore_resources <- filter(resources, tolower(format) %in% c('csv', 'geojson'))
+ 
+homeless_flow_data <- filter(datastore_resources, row_number()==1) %>% get_resource()
+homeless_flow_data <- janitor::clean_names(homeless_flow_data)
+```
+
+
+# 1 Introduction 
+
+Homelessness in Toronto is measured to display the proportion of the population experiencing the unfortunate troubles of being displaced, especially during the pandemic that is difficult for cities to solve. Homelessness is a huge issue in Toronto that many people have to experience daily. Collecting such data to see if there are increases or decreases in homelessness and the movement of shelters allows the city to respond in ways to help the vulnerable people out experiencing harsh difficulties, which can vary from financial aid to building more necessary shelters. Toronto is a large city that has experienced much homeless in the past and present. Different population groups and age groups are all affected different based on risk factors that such groups experience. Collecting shelter data gives insight into how prevalent such groups are effected and how strong those risk factors rally influence their homelessness numbers.\
+
+It is difficult to measure homelessness as there is no exact definition, however, a reasonable definition in the Canadian Encyclopedia is states that homelessness is “the situation of an individual or family without stable, safe, permanent, appropriate housing, or the immediate prospect, means and ability of acquiring it. It is the result of systemic or societal barriers, a lack of affordable and appropriate housing, the individual/household’s financial, mental, cognitive, behavioural, or physical challenges, and/or racism and discrimination. Most people do not choose to be homeless, and the experience is generally negative, unpleasant, stressful and distressing” (Rech 2019). Although this definition may capture the right idea of who homeless people are, measuring it can be inaccurate as not every homeless person reaches out for help to shelter or other resources. Additionally, with the recent Covid-19 pandemic data could completely affect the homelessness rates in Toronto as there are more unemployed people and less refugees due to border restrictions, so such factors can change how homelessness looks like in Toronto. 
+
+
+# 2 Data 
+
+## 2.1 Data Source and Collection
+
+In this report, the data regarding the shelter flow of homeless in Toronto is obtained from Shelter System Flow Data (Data 2022). The data details the number of people entering, returning, and leaving shelters and offered services in the last three months and that are actively homeless. The data is attained by the Shelter Management Information System, which registers distinctive homeless people that have stayed at any shelters including emergency shelters, respites, registered centers, motel programs, and other services in the last three months and that are not discharged to permanent housing. The reported homeless and shelter flow system dataset used was obtained in csv format from the City of Toronto Open Data Portal using the R package `opendatatoronto` [@citeopendatatoronto] and was last updated on January 7th, 2022. The data collected by the city of Toronto alluding to the Shelter System Flow summarizes the details and circulation of the homeless community in Toronto monthly from January 2020 to December 2021. Using `R` [@citeR], `tidyverse` [@citetidyverse], `janitor` [@citejanitor] and `dplyr` [@citedplyr], I cleaned and extracted the necessary data to start my exploratory analysis.\
+
+The shelter system flow data has detailed characteristics and attributes of the homeless population that are collected monthly; however, it is not the most accurate representation of the true total population of homeless individuals. This is for the reason that the data collection process does not include around 18% of the homeless individuals in Toronto, study done by Street Needs Assessment, who are living and sleeping out on the streets of the city and cannot be counted. Counting the whole population of There are some limits to this data that as it only collects people who enter shelters and other given services but those who sleep on the streets are not included. There is no uniform definition of homelessness and how to count them, which is why this data is not the most accurate for measuring homelessness but using the flow of shelters is a good way to get the idea of Toronto’s homeless status. 
+
+
+## 2.2 Data Characteristics 
+The Shelter System Flow data features the homeless community in Toronto monthly from January 2020 to December 2021, that includes 180 observations and 19 variables that describe different characteristics and demographics to assess homelessness. Variables measured in this data set include different types, ages and groups of individuals experiencing homelessness. The data is categorized by ascending order of id number, the date of attendance by month and year and by each group that individuals are categorized in. There are seven different types of population groups, which includes individuals who experience chronic homelessness: persons who have either had a minimum of 180 stays in a year or has 546 nights consecutively overnight stays over three years, refugees: persons who identify or are in a program for being refugees, families: individuals who stay with a family overnight, youth: individuals between ages of 16 and 24 that are not included with families, single adults: individuals who are not considered youth or in families, non-refugees and the whole population of all homeless people in the data attending these shelters. The data also includes three genders: male, female, and transgender/non-binary as well as different range of age groups of the individuals inclusive of under 16, 16-24, 25-44, 45-64, and 65 and up. The span of ages and social groups allows for simpler analysis of specifically recognizing which age groups are really suffering from homelessness. In this case, a prediction made is that younger and middle-aged people as well as refugees are probably more likely to experience homelessness. The shelter flow data at the end includes percentage of population group, which allows to easily see the proportion breakdown of each group each month. To organize the flow and where the movement occurs in the shelters, it is categorized into six groups including people that are actively homeless, the inflow of people that returned from housing, returned to shelter, or newly identified and the outflow of people that moved to housing, no recent shelter use. Using `ggplot2` [@citeggplot2] and `knitr` [@citeknitr], I graphed tables and different types of charts using data to assess the insight on communities that are affected by homelessness. 
+
+```{r, echo=FALSE}
+da <- homeless_flow_data$date_mmm_yy
+homeless_flow_data$dates <- as.Date(paste("01-", da, sep = ""), format = "%d-%b-%y")
+```
+
+```{r, echo=FALSE}
+all_pop_data <- subset(homeless_flow_data, population_group == "All Population")
+```
+
+
+```{r, echo=FALSE}
+data_flow_table <- tibble(homeless_flow_data[1:7, c(3:9,11:13,15:16)])
+
+knitr::kable(data_flow_table, col.names = c("Population Group", "Returned from housing", 	"Returned to shelter",	"Newly identified",	"Moved to housing",	"No recent shelter use",	"Actively homeless",	"Age 16-24",	"Age 25-44",	"Age 45-64",	"Gender male",	"Gender female"))
+```
+
+This table shows the first 7 rows of the dataset. It is organized in the way that it shows the first 7 population groups in January 2020 and all the other characteristics that describe each group including inflows, outflows, age, gender. It then repeats in the same population group order for each month till December 2021. 
+
+### 2.2.1 Active Homelessness
+```{r, echo=FALSE}
+act_homeless <- all_pop_data %>% 
+  group_by(dates) %>% 
+  summarise(mean=mean(actively_homeless))
+```
+
+```{r, echo=FALSE, fig.cap="Total number of actively homeless people each month."}
+ggplot(act_homeless, aes(x=dates, y=mean)) +
+  geom_point()+
+  geom_line()+
+  xlab("Time in Months")+
+  ylab("Number of People")+
+  ggtitle("Number of people Actively Homeless in each Month")
+  
+```
+Active homelessness is defined as not discharged to permanent housing in the past 3 months. This graph allows us to see when the total population of homeless people is at its highest. Active homelessness is at its highest in January 2020 with 9918 experiencing homelessness with small decreases following in February and March. However, there is a large drop from then till July 2020 of 7552 experiencing active homelessness. The trend remains quite constant with the lowest being in October 2020 with 7506 homeless and another high in February 2021 at people. The trend drastically increased it numbers again throughout 2021, almost close to the record high in January 2020, with a high of 9255 homeless people in December 2021. Although, the trends of active homelessness fluctuate, there is an evident pattern. It is observed that the total amount of actively homeless people is noticeably larger in the winter months (November, December, January, February). This make sense as winters in Toronto are harsh and makes living conditions on the streets intolerable. Additionally, it should also be mentioned that with Toronto being strongly affected by the pandemic during the winter months as there are ore sick people and lockdowns that negatively affect the population, could possibly also be a reason numbers became a lot higher.  Concluding, the population of active homelessness increases in winter months as they do not have the resources to survive harsh winter in Toronto. 
+
+### 2.2.2 Population and Age Groups
+```{r, echo=FALSE}
+x1 <- homeless_flow_data %>% 
+  select(population_group, ageunder16, age16_24, age25_44, age45_64, age65over) %>% 
+  group_by(population_group) %>% 
+  summarize(ageunder16=sum(ageunder16), age16_24=sum(age16_24),
+            age25_44=sum(age25_44), age45_64=sum(age45_64), age65over=sum(age65over))
+
+data_ggp_pop_group <- data.frame(x = x1$population_group,                          
+                       y = c(x1$ageunder16, x1$age16_24, x1$age25_44, 
+                             x1$age45_64, x1$age65over),
+                       age_group = c(rep("ageunder16", nrow(x1)),
+                                 rep("age16_24", nrow(x1)),
+                                 rep("age25_44", nrow(x1)),
+                                 rep("age45_64", nrow(x1)),
+                                 rep("age65over", nrow(x1))))
+
+ggp_pop_group <- ggplot(data_ggp_pop_group, aes(x, y, fill = age_group)) +             
+  geom_col(position='dodge') +
+  ggtitle("Flow in Shelters of Age Groups in each Population Group")+
+  xlab("Population Groups")+
+  ylab("Count")+
+  theme(axis.text.x=element_text(angle=90,hjust=1))
+ggp_pop_group 
+
+```
+Homelessness varies across different population groups as they all face different challenges and risk factors that can cause them to become homeless. There is much relevance to the flow of homeless individuals in shelters that relate the ages of individuals and the population group they are categorized in. The graph illustrates, from the whole population that single adults between the ages of 25 to 44 struggle the most with homelessness in front of people aged 45 to 64, with people over the age of 65 attributing to the least amount of homelessness. The youth is also a prevalent category that experience homelessness between the ages of 16 to 24. The families population show the most frequency of kids under 16, which is plausible as it is individuals who stay with a family overnight service. Additionally, the indigenous and refugee population groups seem to have the lowest amount of homelessness across all age groups, but the prevalent age group of the refugee and indigenous population age is 25 to 44.This could be dur to the pandemic as less refugees could come to Canada due to restrictions, which could have changed the data to be a lot less than usual. The single adults and non-refugee population have very similar distributions across each age group with ages 25 to 44 the most frequent and probably accounting for most of the total homeless population. Homeless individuals that are 65 or older are the least widespread in Toronto with a count around 10000, while individuals 25-44 are most prevalent with a count around 65000, according to the data from the last 2 years.
+
+### 2.2.3 Gender 
+```{r, echo=FALSE, fig.cap="Proportion of homlessness of each gender to the whole population of homeless people."}
+a <- sum(all_pop_data$gender_male)/sum(all_pop_data$gender_male, all_pop_data$gender_female, all_pop_data$gender_transgender_non_binary_or_two_spirit)
+
+b <- sum(all_pop_data$gender_female)/sum(all_pop_data$gender_male, all_pop_data$gender_female, all_pop_data$gender_transgender_non_binary_or_two_spirit)
+
+c <- sum(all_pop_data$gender_transgender_non_binary_or_two_spirit)/sum(all_pop_data$gender_male, all_pop_data$gender_female, all_pop_data$gender_transgender_non_binary_or_two_spirit)
+
+gender_data <-tibble(male=a, female=b, "transgender or non binary"=c)
+
+gender_data <-as.data.frame(t(gender_data))
+gender_data <- rownames_to_column(gender_data, var="gender")
+
+ggplot(gender_data, aes(x=gender, y=V1))+
+  geom_bar(stat = "identity", position = "dodge", fill="navyblue") +
+  ggtitle("Proportion of Homelessness of each Gender") + 
+  xlab("Genders")+
+  ylab("Proportion")
+```
+Gender, similarly, to age groups and population groups all face different challenges and risk factors that can cause them to become homeless. There is an overwhelming difference in the total population of homeless males versus homeless females and homeless transgender, nonbinary or two spirit. Men are about 63% affected by homelessness of the total population, women are approximately 36% affected and the transgender, nonbinary, two spirit community is 1.5% affected by homelessness. There are many factors that influence someone to become homeless, which can include lack of education, unemployment, prior imprisonment, and substance abuse. These are all risk factors that are more prevalent for man to endure. For example, there are more men in prisons than women (Loesche & Richter 2017), so when they are released, many turn to shelters as they do not have resources or a place to stay. Concluding, men are most likely to become homeless due to the shelter system flow data of the last 2 years. 
+
+### 2.2.4 Inflows and Outflows
+```{r, echo=FALSE, fig.cap="Difference between inflow and outflow of whole homeless population."}
+#Outflow data includes moved to permanent housing and no recent shelter usage
+all_pop_data$outflow <- all_pop_data$moved_to_housing + all_pop_data$no_recent_shelter_use
+
+
+outflow_data <- all_pop_data %>% 
+  group_by(dates) %>% 
+  summarise(mean_outflow=mean(outflow))
+
+
+
+#Inflow data includes moved to permanent housing and no recent shelter usage
+all_pop_data$inflow <- all_pop_data$newly_identified + all_pop_data$returned_from_housing + all_pop_data$returned_to_shelter
+
+inflow_data <- all_pop_data %>% 
+  group_by(dates) %>% 
+  summarise(mean_inflow=mean(inflow))
+
+
+# line graph 
+inflow_outflow <- merge(inflow_data, outflow_data, by="dates")
+
+ggplot(inflow_outflow, aes(x=dates))+
+  geom_line(aes(y = mean_inflow), color = "red") + 
+  geom_line(aes(y = mean_outflow), color="darkblue")+
+  xlab("Time in Months")+
+  ylab("Number of People")+
+  ggtitle("Inflow and Outflow of People in Shelters per Month")
+```
+The shelter system flow can be organized to the inflow of people that returned from housing, returned to shelter, or newly identified and the outflow of people that moved to housing, no recent shelter use to understand the movement of people coming in and out of the shelter system. Both lines follow the same trends; go up and down around the same times and fluctuate quite a bit through the 2 years of the data. The inflow, red line, starts off below the outflow, blue line, but ends up higher by the end of 2021. As previously demonstrated, winter seasons cause an increase in total actively homeless people, which can also be viewed in this graph as the inflow of people is also more prevalent in the winter months. Outflow is also larger in the winter months. There is a larger gap where outflows are lager than inflows around April and May 2020, meaning that with outflows being so high and inflows so low homelessness was seeing low numbers in the population, which can also be seen in. There is also a larger gap where inflows are lager than outflows around May 2021, meaning that with inflows being so high and outflows a bit lower, homelessness was increasing at the point in time and continuing up. Since the graph of inflows and outflows following a similar pattern, shelters rotation seems balanced’ homeless people come in and out quite equally. Inflows and outflows can show and help assess to see if more shelters, services, and resources are necessary because if the inflow was increasing much more than the outflow there would not be enough space in shelters to fit al the homeless people. On the other hand, if outflows were outweighing inflows, we would be able to conclude that there would be less homelessness happening as more people would be going to live in more permanent residence. 
+
+\newpage
+
+# References
+
+Hadley Wickham, Romain François, Lionel Henry and Kirill Müller (2021). dplyr: A
+  Grammar of Data Manipulation. R package version 1.0.5.
+  https://CRAN.R-project.org/package=dplyr
+  
+H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York,
+  2016.
+  
+Loesche, D. Richter, F. (2017, October 23). Infographic: The prison gender gap.  Statista Infographics. Retrieved from https://www.statista.com/chart/11573/gender-of-inmates-in-us-federal-prisons-and-general-population/#:~:text=There's%20a%20pretty%20hefty%20gender,only%206.8%20percent%20are%20women. 
+
+Rech, Nathalie. (2019). Homelessness in Canada.  In <em>The Canadian Encyclopedia</em>.     Retrieved from https://www.thecanadianencyclopedia.ca/en/article/homelessness-in-canada
+
+R Core Team (2020). R: A language and environment for statistical computing. R
+  Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
+  
+Sam Firke (2021). janitor: Simple Tools for Examining and Cleaning Dirty Data. R
+  package version 2.1.0. https://CRAN.R-project.org/package=janitor
+  
+Sharla Gelfand (2020). opendatatoronto: Access the City of Toronto Open Data Portal. R
+  package version 0.1.4. https://CRAN.R-project.org/package=opendatatoronto
+  
+
+Wickham et al., (2019). Welcome to the tidyverse. Journal of Open Source Software,
+  4(43), 1686, https://doi.org/10.21105/joss.01686
+  
+Yihui Xie (2021). knitr: A General-Purpose Package for Dynamic Report Generation in R.
+  R package version 1.31.
+
+  
