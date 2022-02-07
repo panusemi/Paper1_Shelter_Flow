@@ -1,6 +1,6 @@
 ---
 title: "Shelter System Flow has Insight on how Different Communities are Affected*" 
-author: "Emily Panus, 1006142915"
+author: "Emily Panus"
 date: "06/02/2022"
 output: pdf_document
 abstract: "Measuring shelter flow is an efficient way for Toronto to assess the functionality of the system to then assist in improving and reducing its numbers in the future. The shelter flow is calculated on a monthly basis to calculate the people entering, returning, and leaving in all different population groups and ages that we graphed to evaluate the recent homeless situation in Toronto.  It is clear to see that the majority of people experiencing homelessness are of gender male and aged from 24 to 44, active homelessness increases in winter months and the inflow and outflow of people in shelters have similar movement throughout the months. These findings show that recently, notably the devastating increase in homeless during Covid-19, there are many vulnerable people out on the streets, which can use benefit from government, financial and shelter services assistance."
